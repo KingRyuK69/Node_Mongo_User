@@ -1,6 +1,7 @@
 // Importing required modules
 const express = require("express");
 const morgan = require("morgan");
+
 const connectDB = require("./config/db");
 
 // Loading environment variables from .env file
@@ -33,14 +34,12 @@ app.use(express.urlencoded({ extended: false }));
 app.use("/api/users", userRoute);
 app.use("/api/news", newsRoute);
 
-// Setting up a simple route for the home page
 app.get("/", (req, res) => {
-  res.send("Hello NODE API");
+  res.send("Hello Node API!");
 });
 
-// Setting up a simple route for the blog page
 app.get("/blog", (req, res) => {
-  res.send("BlogPost it is");
+  res.send("BlogPost!");
 });
 
 // Starting the server
