@@ -2,6 +2,7 @@
 const express = require("express");
 const morgan = require("morgan");
 
+// import mongo connection
 const connectDB = require("./config/db");
 
 // Loading environment variables from .env file
