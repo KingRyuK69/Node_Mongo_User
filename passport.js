@@ -24,7 +24,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Setting up port
-const PORT1 = process.env.PORT1 || 8000;
+const PORT1 = process.env.PORT1 || 8001;
 
 // Setting up a simple route for the home page
 app.get("/", (req, res) => {
@@ -42,7 +42,7 @@ app.get("/protected", isLoggedIn, (req, res) => {
 });
 
 app.get(
-  "/google/callback",
+  "/auth/google/callback",
   passport.authenticate("google", {
     successRedirect: "/protected",
     failureRedirect: "/auth/google/failure",
@@ -53,19 +53,19 @@ app.get("/auth/google/failure", (req, res) => {
   res.send("Something Went Wrong...");
 });
 
-// app.get("/logout", (req, res) => {
-//   req.logout(() => {
-//     req.session.destroy(() => {
-//       res.send("Bye-Bye");
-//     });
-//   });
-// });
-
 app.get("/logout", (req, res) => {
-  req.logout();
-  req.session.destroy();
-  res.send("See you soon!");
+  req.logout(() => {
+    req.session.destroy(() => {
+      res.send("Bye-Bye");
+    });
+  });
 });
+
+// app.get("/logout", (req, res) => {
+//   req.logout();
+//   req.session.destroy();
+//   res.send("See you soon!");
+// });
 
 // Starting the server
 app.listen(PORT1, () => {
