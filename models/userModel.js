@@ -1,6 +1,10 @@
 const mongoose = require("mongoose");
 
 const LoginSchema = new mongoose.Schema({
+  user_id: {
+    type: Number,
+    required: [true, "Please enter a id"],
+  },
   email: {
     type: String,
     required: [true, "Please enter an email"],

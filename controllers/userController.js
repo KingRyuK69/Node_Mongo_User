@@ -1,4 +1,3 @@
-const Users = require("../models/userModel");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -9,10 +8,14 @@ const jwt = require("jsonwebtoken");
 const { fail } = require("assert");
 require("dotenv").config();
 
+const Users = require("../models/userModel");
+const Emp = require("../models/empModel");
+
 //user registration
 const signup = async (req, res) => {
   // Extracting user details from the request body and storing them in a 'data' object.
   const data = {
+    user_id: req.body.user_id,
     email: req.body.email,
     password: req.body.password,
     name: req.body.name,
@@ -22,7 +25,10 @@ const signup = async (req, res) => {
 
   try {
     // Checking if a user with the same email already exists in the database.
-    const existingUser = await Users.findOne({ email: data.email });
+    const existingUser = await Users.findOne({
+      user_id: data.user_id,
+      email: data.email,
+    });
 
     // If user exists, return an error message.
     if (existingUser) {
@@ -38,6 +44,7 @@ const signup = async (req, res) => {
 
       // Create a new user
       const user = new Users({
+        user_id: data.user_id,
         email: data.email,
         password: hashedPassword,
         name: data.name,
@@ -344,6 +351,54 @@ const getImage = async (req, res) => {
   }
 };
 
+// get one user with the specified emp details
+const getUserWithEmpDetails = async (req, res) => {
+  try {
+    const user = await Emp.findOne({ user_id: req.params.id }).populate(
+      "user_id"
+    );
+    res.json({ error: false, result: user, msg: "User with Emp Details" });
+  } catch (err) {
+    res.status(500).json({ error: true, result: null, msg: err.message });
+  }
+};
+
+// get all user with emp details
+const getAllUsersWithEmpDetails = async (req, res) => {
+  try {
+    const users = await Emp.find({}).populate("user_id");
+    res.json({
+      error: false,
+      result: users,
+      msg: "All Users with Emp Details",
+    });
+  } catch (err) {
+    res.status(500).json({ error: true, result: null, msg: err.message });
+  }
+};
+
+const getEveryUsersWithEmpDetails = async (req, res) => {
+  try {
+    const users = await Users.find({});
+    const usersWithEmpDetails = await Promise.all(
+      users.map(async (user) => {
+        const empDetails = await Emp.findOne({ user_id: user._id });
+        return {
+          ...user._doc,
+          empDetails: empDetails || null,
+        };
+      })
+    );
+    res.json({
+      error: false,
+      result: usersWithEmpDetails,
+      msg: "All Users with Emp Details",
+    });
+  } catch (err) {
+    res.status(500).json({ error: true, result: null, msg: err.message });
+  }
+};
+
 module.exports = {
   getUser,
   deleteUser,
@@ -359,4 +414,7 @@ module.exports = {
   verifyToken,
   updateProfile,
   deactivateUser,
+  getUserWithEmpDetails,
+  getAllUsersWithEmpDetails,
+  getEveryUsersWithEmpDetails,
 };

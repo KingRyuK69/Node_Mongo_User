@@ -13,6 +13,9 @@ const {
   verifyToken,
   deactivateUser,
   deleteUser,
+  getUserWithEmpDetails,
+  getAllUsersWithEmpDetails,
+  getEveryUsersWithEmpDetails,
 } = require("../controllers/userController");
 
 //add prod validation middleware
@@ -61,8 +64,17 @@ router.put("/updateProfile", verifyToken, updateProfile);
 //deactivate user by id
 router.put("/user_stat/deactivate", verifyToken, deactivateUser);
 
+// get all user with emp details
+router.get("/getAllUsersWithEmpDetails", getAllUsersWithEmpDetails);
+
+// get every user with emp details even if they don't have emp details
+router.get("/getEveryUsersWithEmpDetails", getEveryUsersWithEmpDetails);
+
 //get a new user by id
-router.get("/get/:id", getUser);
+router.get("/getUser/:id", getUser);
+
+// get user with emp details
+router.get("/getUserDetails/:id", getUserWithEmpDetails);
 
 //delete a user
 router.delete("/delete/:id", deleteUser);
