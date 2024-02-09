@@ -373,29 +373,6 @@ const getUserWithEmpDetails = async (req, res) => {
 //   }
 // };
 
-// get all user with emp details only with aggregation pipeline
-// const getAllUsersWithEmpDetails = async (req, res) => {
-//   try {
-//     const users = await Emp.aggregate([
-//       {
-//         $lookup: {
-//           from: "user_logins",
-//           localField: "user_id",
-//           foreignField: "_id",
-//           as: "User_details",
-//         },
-//       },
-//     ]);
-//     res.json({
-//       error: false,
-//       result: users,
-//       msg: "All Users with Emp Details",
-//     });
-//   } catch (err) {
-//     res.status(500).json({ error: true, result: null, msg: err.message });
-//   }
-// };
-
 // get all user with emp details only with aggregation pipeline with sort in order
 const getAllUsersWithEmpDetails = async (req, res) => {
   try {
