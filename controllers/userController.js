@@ -1,4 +1,3 @@
-const Users = require("../models/userModel");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -9,6 +8,9 @@ const jwt = require("jsonwebtoken");
 const { fail } = require("assert");
 require("dotenv").config();
 
+const Users = require("../models/userModel");
+const Emp = require("../models/empModel");
+
 //user registration
 const signup = async (req, res) => {
   // Extracting user details from the request body and storing them in a 'data' object.
@@ -18,6 +20,7 @@ const signup = async (req, res) => {
     name: req.body.name,
     phoneNo: req.body.phoneNo,
     userStatus: req.body.userStatus,
+    GSTIN: req.body.GSTIN,
   };
 
   try {
@@ -43,8 +46,8 @@ const signup = async (req, res) => {
         name: data.name,
         phoneNo: data.phoneNo,
         userStatus: data.userStatus,
-        panNo: data.userStatus,
-        GSTIN: data.userStatus,
+        panNo: data.panNo,
+        GSTIN: data.GSTIN,
       });
 
       // Save the new user to the database.
@@ -344,6 +347,233 @@ const getImage = async (req, res) => {
   }
 };
 
+// get one user with the specified emp details
+const getUserWithEmpDetails = async (req, res) => {
+  try {
+    const user = await Emp.findOne({ user_id: req.params.id }).populate(
+      "user_id"
+    );
+    res.json({ error: false, result: user, msg: "User with Emp Details" });
+  } catch (err) {
+    res.status(500).json({ error: true, result: null, msg: err.message });
+  }
+};
+
+// get all user with emp details only
+// const getAllUsersWithEmpDetails = async (req, res) => {
+//   try {
+//     const users = await Emp.find({}).populate("user_id");
+//     res.json({
+//       error: false,
+//       result: users,
+//       msg: "All Users with Emp Details",
+//     });
+//   } catch (err) {
+//     res.status(500).json({ error: true, result: null, msg: err.message });
+//   }
+// };
+
+// get all user with emp details only with aggregation pipeline with sort in order
+const getAllUsersWithEmpDetails = async (req, res) => {
+  try {
+    const users = await Emp.aggregate([
+      {
+        $lookup: {
+          from: "user_logins",
+          localField: "user_id",
+          foreignField: "_id",
+          as: "user_details",
+        },
+      },
+      {
+        $addFields: {
+          employee_details: {
+            _id: "$_id",
+            user_id: "$user_id",
+            emp_role: "$emp_role",
+            // add other fields as needed
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          __v: 0,
+          user_id: 0,
+          emp_role: 0,
+          "user_details.__v": 0,
+          // exclude/include other fields as needed
+        },
+      },
+    ]);
+    res.json({
+      error: false,
+      result: users,
+      msg: "All Users with Emp Details",
+    });
+  } catch (err) {
+    res.status(500).json({ error: true, result: null, msg: err.message });
+  }
+};
+
+// get every existing user details present with emp as well
+// const getEveryUsersWithEmpDetails = async (req, res) => {
+//   try {
+//     const users = await Users.find({});
+//     const usersWithEmpDetails = await Promise.all(
+//       users.map(async (user) => {
+//         const empDetails = await Emp.findOne({ user_id: user._id });
+//         return {
+//           userDetails: user,
+//           // ...user._doc,
+//           empDetails: empDetails || [],
+//         };
+//       })
+//     );
+//     res.json({
+//       error: false,
+//       result: usersWithEmpDetails,
+//       msg: "All Users with Emp Details",
+//     });
+//   } catch (err) {
+//     res.status(500).json({ error: true, result: null, msg: err.message });
+//   }
+// };
+
+// get every existing user details present with emp as well with aggregation pipeline
+const getEveryUsersWithEmpDetails = async (req, res) => {
+  try {
+    const usersWithEmpDetails = await Users.aggregate([
+      {
+        $match: {
+          userStatus: "Active",
+        },
+      },
+      {
+        $lookup: {
+          from: "emp_details",
+          localField: "_id",
+          foreignField: "user_id",
+          as: "empDetails",
+        },
+      },
+      {
+        $addFields: {
+          userDetails: {
+            _id: "$_id",
+            name: "$name",
+            phoneNo: "$phoneNo",
+            email: "$email",
+            panNo: "$panNo",
+            GSTIN: "$GSTIN",
+            password: "$password",
+            userStatus: "$userStatus",
+          },
+        },
+      },
+      {
+        $project: {
+          panNo: 0,
+          GSTIN: 0,
+          name: 0,
+          __v: 0,
+          _id: 0,
+          email: 0,
+          password: 0,
+          phoneNo: 0,
+          userStatus: 0,
+          "empDetails.__v": 0, // exclude __v from empDetails
+        },
+      },
+      {
+        $sort: {
+          "userDetails._id": -1, // sort by userDetails._id in descending order
+        },
+      },
+    ]);
+    res.json({
+      error: false,
+      result: usersWithEmpDetails,
+      msg: "All Users with Emp Details",
+    });
+  } catch (err) {
+    res.status(500).json({ error: true, result: null, msg: err.message });
+  }
+};
+
+// function
+// const getEveryUsersWithEmpDetails = async (req, res) => {
+//   try {
+//     const usersWithEmpDetails = await Users.aggregate([
+//       {
+//         $match: {
+//           userStatus: "Active",
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "emp_details",
+//           localField: "_id",
+//           foreignField: "user_id",
+//           as: "empDetails",
+//           pipeline: [
+//             {
+//               $match: {
+//                 emp_role: "Manager",
+//               },
+//             },
+//           ],
+//         },
+//       },
+//       {
+//         $match: {
+//           "empDetails.emp_role": "Manager",
+//         },
+//       },
+//       {
+//         $addFields: {
+//           userDetails: {
+//             _id: "$_id",
+//             name: "$name",
+//             phoneNo: "$phoneNo",
+//             email: "$email",
+//             panNo: "$panNo",
+//             GSTIN: "$GSTIN",
+//             password: "$password",
+//             userStatus: "$userStatus",
+//           },
+//         },
+//       },
+//       {
+//         $project: {
+//           panNo: 0,
+//           GSTIN: 0,
+//           name: 0,
+//           __v: 0,
+//           _id: 0,
+//           email: 0,
+//           password: 0,
+//           phoneNo: 0,
+//           userStatus: 0,
+//           "result.__v": 0, // exclude __v from result
+//         },
+//       },
+//       {
+//         $sort: {
+//           "userDetails._id": -1, // sort by userDetails._id in descending order
+//         },
+//       },
+//     ]);
+//     res.json({
+//       error: false,
+//       result: usersWithEmpDetails,
+//       msg: "All Users with Emp Details",
+//     });
+//   } catch (err) {
+//     res.status(500).json({ error: true, result: null, msg: err.message });
+//   }
+// };
+
 module.exports = {
   getUser,
   deleteUser,
@@ -359,4 +589,7 @@ module.exports = {
   verifyToken,
   updateProfile,
   deactivateUser,
+  getUserWithEmpDetails,
+  getAllUsersWithEmpDetails,
+  getEveryUsersWithEmpDetails,
 };

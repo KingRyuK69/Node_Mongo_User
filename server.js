@@ -16,10 +16,15 @@ connectDB();
 
 // Importing routes
 const userRoute = require("./routes/userRoute");
+const empRoute = require("./routes/empRoute");
 const newsRoute = require("./routes/newsRoute");
 
 // Initializing express app
 const app = express();
+
+// Enabling express to parse JSON and url-encoded data
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 // Using morgan for logging in development environment
 if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
@@ -27,12 +32,9 @@ if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
 // Setting up port
 const PORT = process.env.PORT || 3000;
 
-// Enabling express to parse JSON and url-encoded data
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-
 // Setting up routes (default routes)
 app.use("/api/users", userRoute);
+app.use("/api/users", empRoute);
 app.use("/api/news", newsRoute);
 
 app.get("/", (req, res) => {

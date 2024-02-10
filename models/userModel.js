@@ -26,7 +26,6 @@ const LoginSchema = new mongoose.Schema({
   GSTIN: {
     type: String,
     required: [true, "Please enter a GSTN number"],
-    default: "Verified",
   },
   provider: {
     type: String,
