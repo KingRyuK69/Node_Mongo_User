@@ -1,0 +1,16 @@
+2b74cdde6dfd4376aeca4aca1e0a0e6d
+
+MongoDB Aggregation:
+match
+project
+lookup
+sort
+filter
+group-by
+add-field
+
+Public Key:
+BBuMuxb-W8c9p7ox-bL_9gSzcRup8WUd3KhmW_53PNcoYYOTRxnyXQ7X41ft5g36RrOSGD0FBQfOSTqrqumY0gg
+
+Private Key:
+xY-XFm59IfCLPfUv7XsKIAFWRZLSo8ijRXU4q7-6vb4
