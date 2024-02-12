@@ -6,6 +6,7 @@ const addEmp = async (req, res) => {
   const data = {
     emp_role: req.body.emp_role,
     user_id: req.body.user_id,
+    salary: req.body.salary,
   };
 
   try {
@@ -24,6 +25,7 @@ const addEmp = async (req, res) => {
       const emp = new Emp({
         user_id: req.body.user_id,
         emp_role: data.emp_role,
+        salary: data.salary,
       });
 
       // Save the new emp to the database.
@@ -54,4 +56,40 @@ const getAllEmp = async (req, res) => {
   }
 };
 
-module.exports = { addEmp, getAllEmp };
+//update emp
+const updateEmp = async (req, res) => {
+  const data = {
+    user_id: req.body.user_id,
+    emp_role: req.body.emp_role,
+    salary: req.body.salary,
+  };
+  try {
+    const emp = await Emp.findOne({ user_id: data.user_id });
+    if (emp) {
+      emp.emp_role = data.emp_role;
+      emp.salary = data.salary;
+
+      await emp.save();
+
+      return res.status(200).json({
+        error: false,
+        result: emp,
+        msg: "Emp updated successfully",
+      });
+    } else {
+      return res.status(400).json({
+        error: true,
+        result: null,
+        msg: "Emp not found",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      error: true,
+      result: null,
+      msg: error.message,
+    });
+  }
+};
+
+module.exports = { addEmp, getAllEmp, updateEmp };

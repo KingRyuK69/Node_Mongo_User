@@ -393,6 +393,7 @@ const getAllUsersWithEmpDetails = async (req, res) => {
             _id: "$_id",
             user_id: "$user_id",
             emp_role: "$emp_role",
+            salary: "$salary",
             // add other fields as needed
           },
         },
@@ -403,6 +404,7 @@ const getAllUsersWithEmpDetails = async (req, res) => {
           __v: 0,
           user_id: 0,
           emp_role: 0,
+          salary: 0,
           "user_details.__v": 0,
           // exclude/include other fields as needed
         },
@@ -490,6 +492,13 @@ const getEveryUsersWithEmpDetails = async (req, res) => {
           phoneNo: 0,
           userStatus: 0,
           "empDetails.__v": 0, // exclude __v from empDetails
+        },
+      },
+      {
+        $project: {
+          salary: "$_id", // rename _id to salary
+          users: 1, // include users
+          _id: 0, // exclude _id
         },
       },
       {
@@ -584,6 +593,95 @@ const getEmpRole = async (req, res) => {
   }
 };
 
+// group employee with users wrt salary
+const getUsersWithEmpSalary = async (req, res) => {
+  try {
+    const usersWithEmpDetails = await Users.aggregate([
+      {
+        $match: {
+          userStatus: "Active",
+        },
+      },
+      {
+        $lookup: {
+          from: "emp_details",
+          localField: "_id",
+          foreignField: "user_id",
+          as: "empDetails",
+        },
+      },
+      {
+        $addFields: {
+          userDetails: {
+            _id: "$_id",
+            name: "$name",
+            phoneNo: "$phoneNo",
+            email: "$email",
+            panNo: "$panNo",
+            GSTIN: "$GSTIN",
+            password: "$password",
+            userStatus: "$userStatus",
+          },
+        },
+      },
+      {
+        $project: {
+          panNo: 0,
+          GSTIN: 0,
+          name: 0,
+          __v: 0,
+          _id: 0,
+          email: 0,
+          password: 0,
+          phoneNo: 0,
+          userStatus: 0,
+          "empDetails.__v": 0, // exclude __v from empDetails
+        },
+      },
+      {
+        $unwind: "$empDetails",
+      },
+      {
+        $unwind: "$userDetails",
+      },
+      {
+        $group: {
+          _id: "$empDetails.salary",
+          users: {
+            $push: {
+              _id: "$_id",
+              empDetails: "$empDetails",
+              userDetails: "$userDetails",
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          salary: "$_id", // rename _id to salary
+          users: 1, // include users
+          _id: 0, // exclude _id
+        },
+      },
+      {
+        $sort: {
+          "userDetails._id": -1, // sort by userDetails._id in descending order
+        },
+      },
+    ]);
+
+    const totalUsers = await Users.countDocuments({ userStatus: "Active" });
+
+    res.json({
+      error: false,
+      result: { usersWithEmpDetails, totalUsers },
+      msg: "All Users with Emp Details",
+    });
+  } catch (err) {
+    res.status(500).json({ error: true, result: null, msg: err.message });
+  }
+};
+
 module.exports = {
   getUser,
   deleteUser,
@@ -605,4 +703,5 @@ module.exports = {
   getEmpRole,
   getUserEmpAll,
   getUserEmpEvery,
+  getUsersWithEmpSalary,
 };

@@ -10,6 +10,10 @@ const EmployeeSchema = new mongoose.Schema({
     type: String,
     required: [true, "Please enter a role"],
   },
+  salary: {
+    type: Number,
+    required: [true, "Please enter a salary"],
+  },
 });
 
 const Emp = mongoose.model("emp_detail", EmployeeSchema);

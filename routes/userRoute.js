@@ -19,6 +19,7 @@ const {
   getEmpRole,
   getUserEmpAll,
   getUserEmpEvery,
+  getUsersWithEmpSalary,
 } = require("../controllers/userController");
 
 //add prod validation middleware
@@ -78,6 +79,9 @@ router.get("/getAllUsersWithEmpDetails", getAllUsersWithEmpDetails);
 
 // get every user with emp details even if they don't have emp details (agg)
 router.get("/getEveryUsersWithEmpDetails", getEveryUsersWithEmpDetails);
+
+// get every user with emp details based on salary
+router.get("/getUsersWithEmpSalary", getUsersWithEmpSalary);
 
 // get emp role of particular emp (agg)
 router.get("/getEmpRole", getEmpRole);
