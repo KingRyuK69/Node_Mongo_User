@@ -405,6 +405,11 @@ const getAllUsersWithEmpDetails = async (req, res) => {
           // exclude/include other fields as needed
         },
       },
+      {
+        $sort: {
+          "user_details._id": -1, // sort by userDetails._id in descending order
+        },
+      },
     ]);
     res.json({
       error: false,
