@@ -16,6 +16,9 @@ const {
   getUserWithEmpDetails,
   getAllUsersWithEmpDetails,
   getEveryUsersWithEmpDetails,
+  getEmpRole,
+  getUserEmpAll,
+  getUserEmpEvery,
 } = require("../controllers/userController");
 
 //add prod validation middleware
@@ -64,11 +67,20 @@ router.put("/updateProfile", verifyToken, updateProfile);
 //deactivate user by id
 router.put("/user_stat/deactivate", verifyToken, deactivateUser);
 
-// get all user with emp details
+// get only user detail with present emp detail
+router.get("/getUserEmpAll", getUserEmpAll);
+
+// get all user emp detail
+router.get("/getUserEmpEvery", getUserEmpEvery);
+
+// get all user with presnet emp details (agg)
 router.get("/getAllUsersWithEmpDetails", getAllUsersWithEmpDetails);
 
-// get every user with emp details even if they don't have emp details
+// get every user with emp details even if they don't have emp details (agg)
 router.get("/getEveryUsersWithEmpDetails", getEveryUsersWithEmpDetails);
+
+// get emp role of particular emp (agg)
+router.get("/getEmpRole", getEmpRole);
 
 //get a new user by id
 router.get("/getUser/:id", getUser);
