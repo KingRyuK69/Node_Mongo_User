@@ -658,7 +658,7 @@ const getUsersWithEmpSalary = async (req, res) => {
       },
       {
         $sort: {
-          "userDetails._id": -1, // sort by userDetails._id in descending order
+          salary: 1, // sort by salary in ascending order
         },
       },
     ]);
