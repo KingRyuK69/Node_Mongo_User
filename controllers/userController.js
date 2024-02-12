@@ -498,9 +498,12 @@ const getEveryUsersWithEmpDetails = async (req, res) => {
         },
       },
     ]);
+
+    const totalUsers = await Users.countDocuments({ userStatus: "Active" });
+
     res.json({
       error: false,
-      result: usersWithEmpDetails,
+      result: { usersWithEmpDetails, totalUsers },
       msg: "All Users with Emp Details",
     });
   } catch (err) {
