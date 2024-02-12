@@ -495,13 +495,6 @@ const getEveryUsersWithEmpDetails = async (req, res) => {
         },
       },
       {
-        $project: {
-          salary: "$_id", // rename _id to salary
-          users: 1, // include users
-          _id: 0, // exclude _id
-        },
-      },
-      {
         $sort: {
           "userDetails._id": -1, // sort by userDetails._id in descending order
         },
