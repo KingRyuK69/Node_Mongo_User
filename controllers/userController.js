@@ -477,6 +477,16 @@ const getEveryUsersWithEmpDetails = async (req, res) => {
             GSTIN: "$GSTIN",
             password: "$password",
             userStatus: "$userStatus",
+            employeeCount: {
+              $size: "$empDetails",
+            },
+            isEmployed: {
+              $cond: {
+                if: { $gt: [{ $size: "$empDetails" }, 0] },
+                then: true,
+                else: false,
+              },
+            },
           },
         },
       },
